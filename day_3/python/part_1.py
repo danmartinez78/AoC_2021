@@ -1,9 +1,9 @@
 import sys, getopt
+import numpy as np
 
 def read_input(fn):
     with open(fn) as f:
         lines = f.read().splitlines()
-    lines = [i.split() for i in lines]
     return lines
 
 def main(argv):
@@ -18,22 +18,30 @@ def main(argv):
          sys.exit()
       elif opt in ("-i", "--ifile"):
          inputfile = arg
-
-    data = read_input(inputfile)
-    pos = [0,0]
-    for command in data:
-      direction = command[0]
-      if direction == 'forward':
-        pos[0] += int(command[1])
-      elif direction == 'back':
-        pos[0] -= int(command[1])
-      elif direction == 'up':
-        pos[1] -= int(command[1])
-      elif direction == 'down':
-        pos[1] += int(command[1])
     
-    print(pos)
-    print(pos[0] * pos[1])
+    data = read_input("../inputs/" + inputfile)
+    print(data)
+    data = np.asarray(data)
+    print(data)
+    gamma = ''
+    epsilon = ''
+    counts = np.zeros(len(data[0]))
+    for bits in data:
+      print(bits)
+      for i in range(len(data[0])):
+        if bits[i] == '1':
+          counts[i] += 1
+    for i in range(len(counts)):
+      if counts[i] > int(len(data)/2):
+        gamma +=  '1'
+        epsilon += '0'
+      else:
+        gamma +=  '0'
+        epsilon += '1'
+    print(gamma, epsilon)
+    print(int(gamma, 2) * int(epsilon, 2))
+
+
 
 if __name__ == "__main__":
     main(sys.argv[1:])
