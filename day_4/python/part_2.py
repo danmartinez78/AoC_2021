@@ -59,6 +59,7 @@ def main(argv):
     scores = []
     for num in nums:
       print('number of boards left:', len(boards))
+      if (len(boards)==0): break
       for b in boards[:]:
         # print("BOARD Before:")
         # print(b.numbers, '\n', b.marks)
@@ -72,7 +73,7 @@ def main(argv):
           print(b.calc_score())
           scores.append(b.calc_score())
           boards.remove(b)
-    print(scores)
+    print(scores[-1])
 
 if __name__ == "__main__":
     main(sys.argv[1:])
