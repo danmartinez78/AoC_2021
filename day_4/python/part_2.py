@@ -1,58 +1,40 @@
-import sys
-import getopt
+import sys, getopt
 import numpy as np
-import copy
 from math import ceil
+import copy
+
+class Board:
+  def __init__(self, numbers):
+    self.numbers = np.asarray(numbers).reshape((5,5))
+    self.marks = np.zeros(shape = (5,5))
+    self.winning_num = 0
+  
+  def play_turn(self, num):
+    index = np.where(self.numbers == num)
+    self.marks[index] = 1
+
+  def check_win(self, num):
+    # calc sums
+    row_sum = np.sum(self.marks, axis = 0)
+    col_sum = np.sum(self.marks, axis = 1)
+    # print('sums', row_sum, col_sum)
+    # check for win
+    if np.max(row_sum) == 5 or np.max(col_sum) == 5:
+      self.winning_num = int(num)
+      return True
+    else:
+      return False
+
+  def calc_score(self):
+    indices = np.where(self.marks == 0)
+    sum = np.sum(self.numbers.astype(int)[np.where(self.marks == 0)])
+    return sum*self.winning_num
 
 def read_input(fn):
     with open(fn) as f:
-        lines = f.read().splitlines()
+        lines = f.read().split('\n\n')
+        lines = [l.split() for l in lines]
     return lines
-
-
-def find_most_least_common(data):
-  gamma = ''
-  epsilon = ''
-  data = np.asarray(data)
-  counts = np.zeros(len(data[0]))
-  for bits in data:
-      for i in range(len(data[0])):
-        if bits[i] == '1':
-          counts[i] += 1
-  for i in range(len(counts)):
-    if counts[i] >= ceil(len(data)/2):
-      gamma +=  '1'
-      epsilon += '0'
-    else:
-      gamma +=  '0'
-      epsilon += '1'
-  return gamma, epsilon
-
-
-def oxygen(data):
-  for i in range(len(data[0])):
-    if len(data) <= 1:
-      break
-    most, least = find_most_least_common(data)
-    bit = most[i]
-    print(bit, data)
-    for cand in data[:]:
-      if cand[i] != bit:
-        data.remove(cand)
-  return data[0]
-
-def co2(data):
-  for i in range(len(data[0])):
-    if len(data) <= 1:
-      break
-    most, least = find_most_least_common(data)
-    bit = least[i]
-    print(bit, data)
-    for cand in data[:]:
-      if cand[i] != bit:
-        data.remove(cand)
-  return data[0]
-    
 
 def main(argv):
     try:
@@ -68,9 +50,29 @@ def main(argv):
          inputfile = arg
     
     data = read_input("../inputs/" + inputfile)
-    ogr = int(oxygen(copy.copy(data)),2)
-    csr = int(co2(copy.copy(data)),2)
-    print(ogr, csr, ogr*csr)
+    nums = data[0][0].split(',')
+    print(nums)
+    boards = []
+    for vals in data[1:]:
+      boards.append(Board(vals))
+    
+    scores = []
+    for num in nums:
+      print('number of boards left:', len(boards))
+      for b in boards[:]:
+        # print("BOARD Before:")
+        # print(b.numbers, '\n', b.marks)
+        # print('number', num)
+        b.play_turn(num)
+        # print("BOARD After:")
+        # print(b.numbers, '\n', b.marks)
+        if (b.check_win(num)):
+          print('WIN!!!!!')
+          print(b.numbers, '\n', b.marks)
+          print(b.calc_score())
+          scores.append(b.calc_score())
+          boards.remove(b)
+    print(scores)
 
 if __name__ == "__main__":
     main(sys.argv[1:])
